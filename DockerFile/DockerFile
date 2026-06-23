@@ -1,0 +1,66 @@
+FROM  rockylinux/rockylinux:9.8
+
+
+VOLUME  ["/ISO","/iso"]
+
+ENV local_ip=127.0.0.1
+ENV next_ip=
+ENV netmask=
+ENV gateway=
+ENV nameserver=
+ENV range_start=
+ENV range_end=
+ENV arch=
+ENV ks=
+ENV iso=
+ENV iso_label=
+ENV ipxe=
+ENV http_web_port=
+ENV subnet=
+
+    
+WORKDIR  /var/lib/tftpboot
+EXPOSE   67
+EXPOSE   69
+EXPOSE   80
+
+
+ADD   fping-3.10-4.el7.x86_64.rpm  /root/
+RUN   yum install  -y  grep telnet findutils  xorriso procps-ng  openssl dhcp-server tftp-server tftp iproute   vim  net-tools  && \
+      systemctl  enable tftp && \
+      systemctl  enable dhcpd && \
+      echo "set paste" > ~/.vimrc  && source ~/.vimrc   && \
+      rpm -ivh /root/fping-3.10-4.el7.x86_64.rpm --force --nodeps  && \
+      mkdir /var/run/dhcpd/  && touch /var/run/dhcpd/dhcpd.leases  && \
+      chown dhcpd:dhcpd /var/run/dhcpd/dhcpd.leases  && \
+      yum clean all 
+       
+ENV install=
+
+COPY  entrypoint.sh  /
+ADD   dhcpd.conf   /
+ADD   default.ks   /default.ks
+ADD   default.ks-bak   /default.ks-bak
+ADD   ping_batch.sh                /root/
+ADD   ipxe.tar.gz /opt
+ADD   grub.cfg     /opt
+ADD   etc_nginx_rocky9.tar.gz  /
+ADD   snponly_x86.efi  /opt
+ADD   snponly_arm.efi  /opt
+ADD   ipxe_arm.efi   /opt
+ADD   ipxe_x86.efi   /opt
+ADD   nginx.conf     /
+ADD   start.sh       /
+ADD   autoexec.ipxe  /
+ADD   dhcpd_grub.conf  /
+ADD   dhcpd_ipxe.conf  /
+ADD   grubaa64.efi /opt/  
+ADD   grubx64.efi /opt/  
+RUN    /bin/cp -r  /nginx.conf   /etc/nginx/conf/  && \
+      chmod 777 /start.sh  
+
+
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+#ENTRYPOINT

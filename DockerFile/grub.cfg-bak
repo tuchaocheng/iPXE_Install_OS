@@ -1,0 +1,72 @@
+#-------------------------------------------------------------------------------
+# Set defaults (is re-set by machine specific configuration file)
+#-------------------------------------------------------------------------------
+##set arch='x86_64'
+##set hostname='dummy'
+##set system='dummy'
+#set lang=en
+#set serial_console=false
+#set serial_baud=115200
+#set serial_line=0
+#set k_console=""
+#set local_boot_file=""
+#set kernel_options=""
+set timeout=5
+###set default='local'
+##set default=rocky8-x86_64
+#set default=0
+##set gfxpayload=text
+#set gfxpayload=keep
+#
+#export serial_console
+#export serial_baud
+#export serial_line
+#export k_console
+#export timeout
+#export default
+#export lang
+#export hostname
+#export system
+#export local_boot_file
+#
+## preset architecture, so it will never be empty
+#if [ "$grub_cpu" == "i386" ]; then
+#  set arch='x86_64'
+#elif [ "$grub_cpu" == "x86_64" ]; then
+#  set arch='x86_64'
+#elif [ "$grub_cpu" == "powerpc" ]; then
+#  set arch='ppc64le'
+#elif [ "$grub_cpu" == "arm64" ]; then
+#  set arch='aarch64'
+#else
+#  echo "Warning: No architecture found for ${grub_cpu}"
+#  set arch='unknown'
+#fi
+#
+#echo "Running on $arch CPU architecture"
+
+
+menuentry 'default_label' {
+
+    linuxefi /iso_path/vmlinuz      module_blacklist=nvme  inst.repo=http://default_ip/iso_path/  inst.ks=http://default_ip/iso_path/default.ks  inst.lang=en_US inst.keymap=us ip=dhcp inst.text   quiet
+
+    initrdefi /iso_path/initrd.img
+
+}
+
+#-------------------------------------------------------------------------------
+# MAC address
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# EFI support (in fact shim support!)
+#
+# grub should not offer linuxefi/initrdefi commands but instead handle this
+# internally.
+# But it does not and this allows us clean grub.cfg implementations without
+# the need of checking for efi/nonefi in possibly sourced subconfigfiles.
+#
+# From our grub expert (Raymund Will): linuxefi/initrdefi is for shim
+# support/protocol only.
+# A possible enhancement here would be, if we can differ secure_boot_enabled.
+# grubXY.efi can load kernels via linux or linuxefi, it is only shim
+# case where this has to be differed.
