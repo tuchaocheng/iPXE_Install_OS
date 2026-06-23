@@ -1,0 +1,24 @@
+#!ipxe
+
+set server next_ip
+
+menu Welcome to [GY_iPXE] Install
+item label_name   label_name Auto Install
+item shell        iPXE Shell
+item local        Boot from Local Disk
+
+choose --default label_name --timeout 5000 target
+goto ${target}
+
+:label_name
+#kernel http://${server}/sha256_path/vmlinuz inst.repo=http://${server}/sha256_path/ inst.ks=http://${server}/sha256_path/default.ks  inst.lang=en_US ip=dhcp quiet
+kernel http://${server}/sha256_path/vmlinuz inst.repo=http://${server}/sha256_path/ inst.ks=http://${server}/default.ks  inst.lang=en_US ip=dhcp quiet
+initrd http://${server}/sha256_path/initrd.img
+boot
+
+:shell
+shell
+
+:local
+exit
+
